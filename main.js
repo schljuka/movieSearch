@@ -14,26 +14,33 @@ const container = document.querySelector(`.container`);
 getGenres(api_url_genres);
 
 
-document.querySelector(`#getSearch`).addEventListener("click", getM);
+document.querySelector(`#getSearch`).addEventListener("click", function(){
+  getM(1);
+});
 
 
 let topRatedM = topRated(api_url_movies);
 topRatedM.then(res => {
-  renderMovies(res);
+  renderMovies(res, 1);
 })
 
 
-function getM() {
+function getM(page = 1) {
   let query = document.querySelector(`#search`).value;
 
-  let movies = getMovies(api_url_movies, query, 1);
+  let movies = getMovies(api_url_movies, query, page);
   movies.then(res => {
     renderMovies(res);
   })
 }
 
 
-function renderMovies(data) {
+function renderMovies(data, pag = 0) {
+
+  if(data.results==0){
+    container.innerHTML=`<p>NO DATA</p>`
+    return;
+  }
 
   let html = ``;
 
@@ -62,15 +69,21 @@ function renderMovies(data) {
   });
   container.innerHTML = html;
 
-  let div = document.createElement("div");
-  for (let i = 1; i <= data.total_pages; i++) {
-    let link = document.createElement("a");
-    link.textContent = i + " ";
-    div.appendChild(link);
+
+  if (pag == 0) {
+
+    let div = document.createElement("div");
+    for (let i = 1; i <= data.total_pages; i++) {
+      let link = document.createElement("a");
+      link.textContent = i + " ";
+      link.addEventListener("click", () => {
+        getM(i);
+      })
+      div.appendChild(link);
+    }
+
+    container.appendChild(div);
   }
-
-  container.appendChild(div);
-
 
 }
 
