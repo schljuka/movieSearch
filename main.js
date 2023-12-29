@@ -14,7 +14,7 @@ const container = document.querySelector(`.container`);
 getGenres(api_url_genres);
 
 
-document.querySelector(`#getSearch`).addEventListener("click", function(){
+document.querySelector(`#getSearch`).addEventListener("click", function () {
   getM(1);
 });
 
@@ -28,6 +28,8 @@ topRatedM.then(res => {
 function getM(page = 1) {
   let query = document.querySelector(`#search`).value;
 
+  sessionStorage.setItem("pageP", JSON.stringify({ number: page }))
+
   let movies = getMovies(api_url_movies, query, page);
   movies.then(res => {
     renderMovies(res);
@@ -37,8 +39,8 @@ function getM(page = 1) {
 
 function renderMovies(data, pag = 0) {
 
-  if(data.results==0){
-    container.innerHTML=`<p>NO DATA</p>`
+  if (data.results == 0) {
+    container.innerHTML = `<p>NO DATA</p>`
     return;
   }
 
@@ -72,8 +74,22 @@ function renderMovies(data, pag = 0) {
 
   if (pag == 0) {
 
+
+
     let div = document.createElement("div");
+    let link = document.createElement("a");
+
+    if(data.page>1){
+    link.textContent = "Previous ";
+    link.addEventListener("click", () => {
+      let num = JSON.parse(sessionStorage.getItem("pageP")).number - 1;
+      getM(num);
+    })
+    div.appendChild(link);
+  }
+
     for (let i = 1; i <= data.total_pages; i++) {
+
       let link = document.createElement("a");
       link.textContent = i + " ";
       link.addEventListener("click", () => {
@@ -82,8 +98,20 @@ function renderMovies(data, pag = 0) {
       div.appendChild(link);
     }
 
+
+    if(data.page<data.total_pages){
+    let link2 = document.createElement("a");
+    link2.textContent = " Next";
+    link2.addEventListener("click", () => {
+      let num = JSON.parse(sessionStorage.getItem("pageP")).number + 1;
+      getM(num);
+    })
+
+    div.appendChild(link2);
+  }
     container.appendChild(div);
   }
+
 
 }
 
@@ -105,3 +133,5 @@ function getNameGenre(array) {
   return html;
 
 }
+
+//test
