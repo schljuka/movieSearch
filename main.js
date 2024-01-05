@@ -37,25 +37,31 @@ function getM(page = 1) {
 }
 
 
+let brojac = 0;
+let brojac2 = 0;
+let flag = 0;
+
 function renderMovies(data, pag = 0) {
 
-  if (data.results == 0) {
-    container.innerHTML = `<p>NO DATA</p>`
+  if (data.results.length == 0) {
+
+    container.innerHTML = `<p>No data!!!!</p>`;
     return;
   }
 
   let html = ``;
 
-  data.results.forEach(element => {
 
+  data.results.forEach(element => {
     let im;
 
     if (element.poster_path) {
-      im = image_path + element.poster_path;
-    } else {
-      im = `./img/noimage.png`;
-    }
 
+      im = image_path + element.poster_path;
+    }
+    else {
+      im = './img/noimage.png';
+    }
     html += `<div class='movie'>
   <div class="img">
   <img src="${im}" alt="${element.original_title}">
@@ -64,13 +70,12 @@ function renderMovies(data, pag = 0) {
   
   <h2>${element.original_title}</h2>
 
-  <p>${getNameGenre(element.genre_ids)}</p>
-
+  <p> ${getNameGenre(element.genre_ids)}</p>
   </div>`
+
 
   });
   container.innerHTML = html;
-
 
   if (pag == 0) {
 
@@ -78,41 +83,93 @@ function renderMovies(data, pag = 0) {
 
     let div = document.createElement("div");
     let link = document.createElement("a");
+    if (data.page > 1) {
+      link.textContent = "Previous ";
+      link.addEventListener("click", function () {
 
-    if(data.page>1){
-    link.textContent = "Previous ";
-    link.addEventListener("click", () => {
-      let num = JSON.parse(sessionStorage.getItem("pageP")).number - 1;
-      getM(num);
-    })
-    div.appendChild(link);
-  }
+        let num = JSON.parse(sessionStorage.getItem("pageP")).number - 1;
+        getM(num);
 
-    for (let i = 1; i <= data.total_pages; i++) {
-
-      let link = document.createElement("a");
-      link.textContent = i + " ";
-      link.addEventListener("click", () => {
-        getM(i);
       })
       div.appendChild(link);
     }
 
 
-    if(data.page<data.total_pages){
-    let link2 = document.createElement("a");
-    link2.textContent = " Next";
-    link2.addEventListener("click", () => {
-      let num = JSON.parse(sessionStorage.getItem("pageP")).number + 1;
-      getM(num);
-    })
+    for (let i = 1; i <= data.total_pages; i++) {
 
-    div.appendChild(link2);
-  }
+
+      if (data.total_pages > 6) {
+        brojac++;
+        let link = document.createElement("a");
+        let trenutno = document.createElement(`span`);
+        let num = JSON.parse(sessionStorage.getItem(`pageP`)).number;
+        if (brojac < 4 || brojac > data.total_pages - 3) {
+          if (brojac < 4) {
+            if (num >= data.total_pages - 3) {
+              flag = 1;
+            }
+            if (brojac == 1) {
+              if (flag == 1) {
+                link.textContent = ` 1`;
+                //trenutno.textContent = ` (` + num + `)` + ` `;
+              } else {
+                link.textContent = num + ` `;
+              }
+            } else {
+              if (flag == 1) {
+                link.textContent = ``;
+              } else {
+                brojac2++;
+                link.textContent = brojac2 + num + ` `;
+              }
+            }
+          } else {
+            link.textContent = i + ` `;
+          }
+        }
+        link.addEventListener("click", function () {
+          getM(parseInt(link.textContent));
+        })
+        if (brojac == 4) {
+          const span = document.createElement(`span`);
+          span.textContent = ` ... `;
+          div.appendChild(span);
+        }
+
+        div.appendChild(trenutno);
+        div.appendChild(link);
+        if (brojac == data.total_pages) {
+          brojac = 0;
+          brojac2 = 0;
+        }
+
+      } else {
+        let link = document.createElement(`a`);
+        link.textContent = i + ` `;
+        link.addEventListener("click", function () {
+          getM(i);
+        })
+        div.appendChild(link);
+      }
+    }
+
+    if (data.page < data.total_pages) {
+      let link2 = document.createElement("a");
+      link2.textContent = "Next";
+
+      link2.addEventListener("click", function () {
+
+        let num = JSON.parse(sessionStorage.getItem("pageP")).number + 1;
+        getM(num);
+
+      })
+      div.appendChild(link2);
+    }
+
     container.appendChild(div);
+
+
   }
-
-
 }
 
 
