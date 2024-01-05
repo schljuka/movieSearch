@@ -111,7 +111,7 @@ function renderMovies(data, pag = 0) {
             if (brojac == 1) {
               if (flag == 1) {
                 link.textContent = ` 1`;
-                //trenutno.textContent = ` (` + num + `)` + ` `;
+                trenutno.textContent = ` (` + num + `)` + ` `;
               } else {
                 link.textContent = num + ` `;
               }
